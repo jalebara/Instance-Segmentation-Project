@@ -1,0 +1,21 @@
+name: ece542projects
+channels:
+  - defaults
+dependencies:
+  - cupy
+  - ipykernel
+  - keras
+  - matplotlib
+  - numpy
+  - pandas
+  - pillow
+  - opencv
+  - pydot
+  - python=3.7.6
+  - python-graphviz
+  - pytorch
+  - scikit-learn
+  - scipy
+  - tensorflow-gpu
+  - theano
+
