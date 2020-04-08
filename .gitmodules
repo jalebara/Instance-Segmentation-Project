@@ -4,3 +4,6 @@
 [submodule "bdd-data"]
 	path = bdd-data
 	url = https://github.com/ucbdrive/bdd-data.git
+[submodule "cityscapesScripts"]
+	path = cityscapesScripts
+	url = https://github.com/mcordts/cityscapesScripts.git
