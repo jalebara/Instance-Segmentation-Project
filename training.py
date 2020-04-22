@@ -174,7 +174,7 @@ def train_model():
     # Display plot
     plt.show()
     ## Save Model History
-    with open(os.path.join(MODEL_DIR, 'training_history')), 'wb') as file_pi:
+    with open(os.path.join(MODEL_DIR, 'training_history'), 'wb') as file_pi:
         pickle.dump(history.history, file_pi)
 
 """# Model Evaluation
