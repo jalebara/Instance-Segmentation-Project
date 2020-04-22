@@ -79,7 +79,9 @@ if not os.path.exists(COCO_MODEL_PATH):
     utils.download_trained_weights(COCO_MODEL_PATH)
 
 # Directory of images to run detection on
-IMAGE_DIR = os.path.abspath('/content/drive/My Drive/ECE 542 Final Project/cityscapes-data/leftImg8bit_trainvaltest/leftImg8bit')
+IMAGE_DIR = os.path.abspath(data_dir)
+
+DEFAULT_LOGS_DIR='logs'
 
 from mrcnn.config import Config
 
@@ -103,10 +105,6 @@ class TrainingConfig(Config):
 
 config = TrainingConfig()
 config.display()
-
-class_names = ['ego vehicle', 'rectification border', 'out of roi', 'static', 'dynamic', 'ground', 'road', 'sidewalk', 'parking', 'rail track', 'building', 'wall', 'fence',
-               'guard rail', 'bridge', 'tunnel', 'pole', 'polegroup', 'traffic light', 'traffic sign', 'vegetation', 'terrain', 'sky', 'person', 'rider', 'car', 'truck', 'bus', 'caravan',
-               'trailer', 'train', 'motorcycle', 'bicycle', 'license plate']
 
 import numpy as np
 import json
@@ -250,47 +248,6 @@ class CityscapesSegmentationDataset(Dataset):
 # fig=plt.figure(figsize=(9, 8), dpi= 80, facecolor='w', edgecolor='k')
 # plt.imshow(np.asarray(masks[select]), cmap=plt.cm.gray)
 
-#Training dataset.
-dataset_train = CityscapesSegmentationDataset()
-dataset_train.load_cityscapes(data_dir, 'train')
-dataset_train.prepare()
-
-
-# Validation dataset
-
-dataset_val = CityscapesSegmentationDataset()
-dataset_val.load_cityscapes(data_dir, 'val')
-dataset_val.prepare()
-
-print(len(dataset_train.image_ids))
-print(dataset_train.class_info)
-
-print("Image IDs: {}".format(dataset_train.image_ids))
-print("Image Count: {}".format(len(dataset_train._image_ids)))
-print("Class Count: {}".format(dataset_train.num_classes))
-
-# Create model object in training mode.
-model = modellib.MaskRCNN(mode="training", model_dir=MODEL_DIR, config=config)
-
-# Load weights trained on MS-COCO, excepting areas for training
-# We can exclude the bounding box layers for now, but they will
-# be useful for interpreting our images for now
-model.load_weights(COCO_MODEL_PATH, by_name=True, exclude=["mrcnn_bbox_fc",
-                                                           "mrcnn_bbox",
-                                                           "mrcnn_mask",
-                                                           "mrcnn_class_logits"])
-
-import keras
-keras.__version__
-
-model.keras_model.metrics_tensors = []
-
-model.train(dataset_train, 
-            dataset_train,
-            learning_rate=LEARNING_RATE,
-            epochs=5,
-            layers='heads')
-
 """# Model Setup
 
 Run this cell in order to setup the file structure that Mask R-CNN will expect to use. This includes MODEL_DIR for saving models, 
@@ -333,14 +290,16 @@ DATA_DIR
 Run these cells in order to train the Mask R-CNN model's mask and ROI-related layers (excludes CNN backbone layers).
 """
 
+if model.model_dir is None:
+  model.model_dir = '/home/jabaraho'
 # Training dataset.
-dataset_train = DeepDriveDataset()
-dataset_train.load_deep_drive(data_dir + 'images/train/')
+dataset_train = CityscapesSegmentationDataset()
+dataset_train.load_cityscapes(data_dir, 'train')
 dataset_train.prepare()
 
 # Validation dataset
-dataset_val = DeepDriveDataset()
-dataset_val.load_deep_drive(data_dir + 'images/val/')
+dataset_val = CityscapesSegmentationDataset()
+dataset_val.load_cityscapes(data_dir, 'val')
 dataset_val.prepare()
 
 model.train(dataset_train, 
@@ -350,6 +309,8 @@ model.train(dataset_train,
             layers='heads',
             augmentation=None)
 
+
+model.save(os.path.join(model.model_dir, 'trained_maskrcnn.h5'))
 # Retrieve history for plotting loss and accuracy per epoch
 history = model.keras_model.history.history
 
@@ -375,7 +336,7 @@ plt.grid()
 
 # Display plot
 plt.show()
-
+model.save('trained_maskrcnn.h5')
 """# Model Evaluation
 
 Run these cells in order to receive an evaluation on a test image. First, the new model is selected from among the saved checkpoint models. Then, a configuration is set for inference (the same as before). Then a sample image is labeled using the Berkeley Deep Drive classes.
