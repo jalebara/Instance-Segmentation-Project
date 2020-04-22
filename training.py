@@ -37,9 +37,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # Submodule Libraries
+CITI_ROOT = os.path.abspath('cityscapesScripts/')
+MASK_ROOT = os.path.abspath('Mask_RCNN/')
+
+sys.path.append(MASK_ROOT)
+sys.path.append(CITI_ROOT)
 
 # Import Mask RCNN
-sys.path.append(ROOT_DIR)  # To find local version of the library
+sys.path.append(MASK_ROOT)  # To find local version of the library
 
 # Import COCO config
 sys.path.append(os.path.join(ROOT_DIR, 'samples/coco/'))  # To find local version
@@ -58,18 +63,12 @@ data_dir = 'data/'
 train_dir = 'data/train'
 val_dir = 'data/val'
 
-CITI_ROOT = os.path.abspath('cityscapesScripts/')
-MASK_ROOT = os.path.abspath('Mask_RCNN/')
-
-sys.path.append(MASK_ROOT)
-sys.path.append(CITI_ROOT)
-
 # Commented out IPython magic to ensure Python compatibility.
 # Root directory of the project
 ROOT_DIR = os.path.abspath('Mask_RCNN/')
 
 # Directory to save logs and trained model
-MODEL_DIR = os.path.join(ROOT_DIR, 'logs')
+MODEL_DIR = os.path.join('logs')
 
 # Local path to trained weights file
 COCO_MODEL_PATH = os.path.join(ROOT_DIR, 'mask_rcnn_coco.h5')
@@ -80,8 +79,6 @@ if not os.path.exists(COCO_MODEL_PATH):
 
 # Directory of images to run detection on
 IMAGE_DIR = os.path.abspath(os.path.join(data_dir, 'test'))
-
-DEFAULT_LOGS_DIR='logs'
 
 config = TrainingConfig()
 config.display()
