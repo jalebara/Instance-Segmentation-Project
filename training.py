@@ -47,7 +47,7 @@ sys.path.append(CITI_ROOT)
 sys.path.append(MASK_ROOT)  # To find local version of the library
 
 # Import COCO config
-sys.path.append(os.path.join(ROOT_DIR, 'samples/coco/'))  # To find local version
+sys.path.append(os.path.join(MASK_ROOT, 'samples/coco/'))  # To find local version
 
 #Import Submodule Libraries
 
