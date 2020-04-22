@@ -36,6 +36,7 @@ import skimage.io
 import matplotlib
 import matplotlib.pyplot as plt
 
+from PIL import Image
 # Submodule Libraries
 CITI_ROOT = os.path.abspath('cityscapesScripts/')
 MASK_ROOT = os.path.abspath('Mask_RCNN/')
@@ -225,16 +226,18 @@ def display_predictions():
     root, dirs, file_names = next(os.walk(IMAGE_DIR))
     print(file_names)
     
-    file_names = [ file_name for file_name in file_names  if file_name.endswith(".png") ]
+    file_names = [ file_name for file_name in file_names  if file_name.endswith("8bit.png") ]
 
-    images = [skimage.io.imread(os.path.join(IMAGE_DIR, random.choice(file_names))) for i in range(1)]
-
+    images = [np.asarray(Image.open(os.path.join(IMAGE_DIR, random.choice(file_names)))) for i in range(model.config.BATCH_SIZE)]
+    for i in images:
+        print(i.shape)
+    print(len(images))
     # Run detection
     results = model.detect(images, verbose=1)
 
     # Visualize results
     r = results[0]
-    visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], 
+    visualize.display_instances(images[0], r['rois'], r['masks'], r['class_ids'], 
                                 class_names, r['scores'])
 
 def parse_args():
