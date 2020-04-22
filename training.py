@@ -35,11 +35,6 @@ import argparse
 import skimage.io
 import matplotlib
 import matplotlib.pyplot as plt
-from mrcnn import utils
-import mrcnn.model as modellib
-from mrcnn import visualize
-import coco
-from CityScapesDataset import CityscapesSegmentationDataset, TrainingConfig
 
 # Submodule Libraries
 
@@ -49,6 +44,13 @@ sys.path.append(ROOT_DIR)  # To find local version of the library
 # Import COCO config
 sys.path.append(os.path.join(ROOT_DIR, 'samples/coco/'))  # To find local version
 
+#Import Submodule Libraries
+
+from mrcnn import utils
+import mrcnn.model as modellib
+from mrcnn import visualize
+import coco
+from CityScapesDataset import CityscapesSegmentationDataset, TrainingConfig
 
 #Global Constants
 data_dir = 'data/'
