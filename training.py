@@ -201,11 +201,11 @@ def display_predictions():
         # Find the last checkpoint
         checkpoints = next(os.walk(dir_name))[2]
         checkpoints = filter(lambda f: f.startswith("mask_rcnn"), checkpoints)
-        checkpoints = sorted(checkpoints)
+        checkpoints = list(reversed(sorted(checkpoints)))
         if not checkpoints:
             print('No weight files in {}'.format(dir_name))
         else:
-            checkpoint = os.path.join(dir_name, checkpoints[best_epoch])
+            checkpoint = os.path.join(dir_name, checkpoints[0])
             fps.append(checkpoint)
 
     model_path = sorted(fps)[-1]
