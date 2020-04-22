@@ -242,8 +242,9 @@ def display_predictions():
 
     # Visualize results
     r = results[0]
-    visualize.display_instances(images[0], r['rois'], r['masks'], r['class_ids'], 
-                                class_names, r['scores'])
+    for i in range(len(results)):
+        visualize.display_instances(images[i], results[i]['rois'], results[i]['masks'], results[i]['class_ids'], 
+                                class_names, results[i]['scores'])
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train and display checkpoint results')
