@@ -36,19 +36,18 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # Google Colab or Local Notebook Settings
-colab_notebook = False
 
 data_dir = None
 aug_data_dir = None
 
 
-data_dir = '/content/drive/My Drive/ECE 542 Final Project/gtFine'
+data_dir = 'data/'
 
-train_dir = '/content/drive/My Drive/ECE 542 Final Project/gtFine/train'
-val_dir = '/content/drive/My Drive/ECE 542 Final Project/gtFine/val'
+train_dir = 'data/train'
+val_dir = 'data/val'
 
-CITI_ROOT = os.path.abspath('/content/drive/My Drive/ECE 542 Final Project/cityscapesScripts/')
-MASK_ROOT = os.path.abspath('/content/drive/My Drive/ECE 542 Final Project/Mask_RCNN/')
+CITI_ROOT = os.path.abspath('cityscapesScripts/')
+MASK_ROOT = os.path.abspath('Mask_RCNN/')
 
 
 sys.path.append(MASK_ROOT)
@@ -56,7 +55,7 @@ sys.path.append(CITI_ROOT)
 
 # Commented out IPython magic to ensure Python compatibility.
 # Root directory of the project
-ROOT_DIR = os.path.abspath('/content/drive/My Drive/ECE 542 Final Project/Mask_RCNN/')
+ROOT_DIR = os.path.abspath('Mask_RCNN/')
 
 print(ROOT_DIR)
 
