@@ -1,6 +1,7 @@
 name: ece542projects
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - cupy
   - ipykernel
@@ -19,4 +20,4 @@ dependencies:
   - tensorflow-gpu
   - theano
   - scikit-image
-
+  - imgaug
