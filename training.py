@@ -78,7 +78,7 @@ if not os.path.exists(COCO_MODEL_PATH):
     utils.download_trained_weights(COCO_MODEL_PATH)
 
 # Directory of images to run detection on
-IMAGE_DIR = os.path.abspath(os.path.join(data_dir, 'test'))
+IMAGE_DIR = os.path.abspath(os.path.join(data_dir, 'test/berlin'))
 
 config = TrainingConfig()
 config.display()
@@ -224,6 +224,7 @@ def display_predictions():
     # Load a random image from the images folder
     root, dirs, file_names = next(os.walk(IMAGE_DIR))
     print(file_names)
+    file_names = [filename if filename.endswith(".png") for filename in file_names]
     image = skimage.io.imread(os.path.join(IMAGE_DIR, random.choice(file_names)))
 
     # Run detection
