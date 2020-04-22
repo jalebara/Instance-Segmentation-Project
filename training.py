@@ -227,10 +227,10 @@ def display_predictions():
     
     file_names = [ file_name for file_name in file_names  if file_name.endswith(".png") ]
 
-    image = skimage.io.imread(os.path.join(IMAGE_DIR, random.choice(file_names)))
+    images = [skimage.io.imread(os.path.join(IMAGE_DIR, random.choice(file_names))) for i in range(1)]
 
     # Run detection
-    results = model.detect([image], verbose=1)
+    results = model.detect(images, verbose=1)
 
     # Visualize results
     r = results[0]
