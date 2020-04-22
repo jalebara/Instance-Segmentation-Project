@@ -89,7 +89,9 @@ IMAGE_DIR = os.path.abspath(os.path.join(data_dir, 'test/berlin'))
 config = TrainingConfig()
 config.display()
 
-def train_model():
+def train_model(model_path=None):
+    if model_path = None:
+        model_path = COCO_MODEL_PATH
 
     """# Model Setup
 
@@ -108,7 +110,7 @@ def train_model():
     # Load weights trained on MS-COCO, excepting areas for training
     # We can exclude the bounding box layers for now, but they will
     # be useful for interpreting our images for now
-    model.load_weights(COCO_MODEL_PATH, by_name=True, exclude=["mrcnn_bbox_fc",
+    model.load_weights(model_path, by_name=True, exclude=["mrcnn_bbox_fc",
                                                             "mrcnn_bbox",
                                                             "mrcnn_mask",
                                                             "mrcnn_class_logits"])
@@ -261,7 +263,23 @@ def main():
     elif(args.train_model):
         train_model()
     elif(args.train_from_checkpoint):
-        print('not implemented')
+        fps = []
+        # Pick last directory
+        for d in dir_names: 
+            dir_name = os.path.join(MODEL_DIR, d)
+            # Find the last checkpoint
+            checkpoints = next(os.walk(dir_name))[2]
+            checkpoints = filter(lambda f: f.startswith("mask_rcnn"), checkpoints)
+            checkpoints = list(reversed(sorted(checkpoints)))
+            if not checkpoints:
+                print('No weight files in {}'.format(dir_name))
+            else:
+                checkpoint = os.path.join(dir_name, checkpoints[0])
+                fps.append(checkpoint)
+
+        model_path = sorted(fps)[-1]
+        print('Found model {}'.format(model_path))
+        train_model(model_path=model_path)
     else:
         print('no valid args provided')
 if __name__ == "__main__":
