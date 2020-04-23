@@ -81,7 +81,7 @@ def draw_instances(image, boxes, masks, classes, colors):
 
 def video_loop(vc, model, display_video, record):
     rval = True
-    colors = visualize.random_colors(1000)
+    colors = visualize.random_colors(100)
     if display_video:
         cv2.namedWindow('instances_demo', cv2.WINDOW_NORMAL)
         cv2.namedWindow('video_demo', cv2.WINDOW_NORMAL)
