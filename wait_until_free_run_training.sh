@@ -8,7 +8,7 @@ conda init
 
 for i in {1..12}
 do
-    if [ "$(pgrep -x python >> /dev/null)" ]
+    if pgrep -x python >/dev/null
     then
         echo "Computer Still in Use"
         sleep 3600
