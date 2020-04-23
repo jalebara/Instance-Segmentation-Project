@@ -3,7 +3,7 @@
 ProjectDir=/home/jabaraho/coding/ECE542FinalProject
 HomeDir=/home/jabaraho
 
-read -s -p "Enter password" sudoPW
+read -s -p "Enter password: " sudoPW
 trap ' [ "$(ls -A $ProjectDir/data)" ] && umount $ProjectDir/data ; exit 1 ' SIGTERM SIGKILL SIGINT
 
 echo $sudoPW |sudo -S apt update
@@ -50,3 +50,4 @@ then
     echo $sudoPW | sudo -S umount $ProjectDir/data
 fi
 
+echo "Giving up"
