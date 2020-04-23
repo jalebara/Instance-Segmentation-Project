@@ -35,6 +35,8 @@ import argparse
 import skimage.io
 import matplotlib
 import matplotlib.pyplot as plt
+from datetime import datetime
+import pickle
 
 from PIL import Image
 # Submodule Libraries
@@ -181,7 +183,7 @@ def train_model(model_path=None):
     # Display plot
     plt.show()
     ## Save Model History
-    with open(os.path.join(MODEL_DIR, 'training_history'), 'wb') as file_pi:
+    with open(os.path.join(MODEL_DIR, '{}-training_history'.format(datetime.now().strftime('%Y-%m-%d-%H-%M'))), 'wb') as file_pi:
         pickle.dump(history.history, file_pi)
 
 """# Model Evaluation
