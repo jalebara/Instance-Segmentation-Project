@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ProjectDir=/home/jabaraho/coding/ECE542FinalProject
-$HomeDir=/home/jabaraho
+HomeDir=/home/jabaraho
 
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
