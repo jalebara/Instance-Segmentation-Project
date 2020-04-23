@@ -27,11 +27,12 @@ do
             echo $sudoPW | sudo -S mount -t tmpfs -o size=13G tmpfs $ProjectDir/data
             
             unzip $HomeDir/Downloads/leftImg8bit_trainvaltest.zip -d $ProjectDir/data || exit 1
-            mv -f $ProjectDir/data/leftImg8bit_trainvaltest/* $ProjectDir/data || exit 1
-            rm -rf $ProjectDir/data/leftImg8bit_trainvaltest || exit 1
+            mv -f $ProjectDir/data/leftImg8bit/* $ProjectDir/data/  || exit 1
+            rm -rf $ProjectDir/data/leftImg8bit || exit 1
+            rm $ProjectDir/data/license.txt $projectDir/data/README
 
             unzip $HomeDir/Downloads/gtFine_trainvaltest.zip -d $ProjectDir/data || exit 1
-            rsync --remove-source-file -a $ProjectDir/data/gtFine || exit 1
+            rsync --remove-source-files --update -a $ProjectDir/data/gtFine/*  $ProjectDir/data/ || exit 1
             rm -rf $ProjectDir/data/gtFine || exit 1
         fi
 
