@@ -28,8 +28,8 @@ class TrainingConfig(Config):
     NAME = NAME
     NUM_CLASSES = NUM_CLASSES
     WEIGHT_DECAY = WEIGHT_DECAY
-    IMAGE_MIN_DIM = 256
-    IMAGE_MAX_DIM = 256
+    IMAGE_MIN_DIM = 512
+    IMAGE_MAX_DIM = 512
 
 config = TrainingConfig()
 config.display()
