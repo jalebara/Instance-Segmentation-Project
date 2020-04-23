@@ -48,3 +48,5 @@ if [ "$(ls -A $ProjectDir/data)" ]
 then 
     echo "Releasing Ramfs"
     echo $sudoPW | sudo -S umount $ProjectDir/data
+fi
+
