@@ -58,13 +58,10 @@ class CityscapesSegmentationDataset(Dataset):
         # image_dir: location for image path assignment
         if subset == 'train':
             self.data_dir = os.path.join(root_directory, 'train')
-            image_dir = os.path.join(self.data_dir, 'train')
         elif subset == 'val':
             self.data_dir = os.path.join(root_directory, 'val')
-            image_dir = os.path.join(self.data_dir, 'val')
         elif subset == 'test':
             self.data_dir = os.path.join(root_directory, 'test')
-            image_dir = os.path.join(self.data_dir, 'test')
         else:
             raise Exception('No valid subset provided')
 
@@ -78,7 +75,7 @@ class CityscapesSegmentationDataset(Dataset):
         # Add unique image id's to dataset
         for image_id in image_id_set:
           city = image_id.split('_')[0] # First element in list should be city
-          path = os.path.join(image_dir, city, image_id + '_leftImg8bit.png')
+          path = os.path.join(self.data_dir, city, image_id + '_leftImg8bit.png')
           self.add_image(source = "cityscape", 
           image_id=image_id,
           path=path)
