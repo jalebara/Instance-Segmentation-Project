@@ -4,7 +4,7 @@ ProjectDir=/home/jabaraho/coding/ECE542FinalProject
 HomeDir=/home/jabaraho
 
 read -s -p "Enter password: " sudoPW
-trap ' [ "$(ls -A $ProjectDir/data)" ] && umount $ProjectDir/data ; exit 1 ' SIGTERM SIGKILL SIGINT
+trap ' [ "$(ls -A $ProjectDir/data)" ] && echo $sudoPW | umount $ProjectDir/data ; exit 1 ' SIGTERM SIGKILL SIGINT
 
 echo $sudoPW |sudo -S apt update
 
@@ -29,7 +29,7 @@ do
             unzip $HomeDir/Downloads/leftImg8bit_trainvaltest.zip -d $ProjectDir/data || exit 1
             mv -f $ProjectDir/data/leftImg8bit/* $ProjectDir/data/  || exit 1
             rm -rf $ProjectDir/data/leftImg8bit || exit 1
-            rm $ProjectDir/data/license.txt $projectDir/data/README
+            rm $ProjectDir/data/license.txt $ProjectDir/data/README
 
             unzip $HomeDir/Downloads/gtFine_trainvaltest.zip -d $ProjectDir/data || exit 1
             rsync --remove-source-files --update -a $ProjectDir/data/gtFine/*  $ProjectDir/data/ || exit 1
