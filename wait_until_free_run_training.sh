@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ProjectDir=/home/jabaraho/coding/ECE542FinalProject
-HomeDir=/home/jabaraho
+gitHomeDir=/home/jabaraho
 
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
@@ -34,7 +34,8 @@ do
             unzip $HomeDir/Downloads/gtFine_trainvaltest.zip -d $ProjectDir/data || exit 1
             rsync --remove-source-file -a $ProjectDir/data/gtFine || exit 1
             rm -rf $ProjectDir/data/gtFine || exit 1
-
+        fi
+        
         if [ "$(ls -A $ProjectDir/logs)" ]
         then
             python ./training.py --train_from_checkpoint || { echo "Checkpoint Training Failed... Releasing Ramfs" ; umount $ProjectDir/data ; exit 1 ; }
