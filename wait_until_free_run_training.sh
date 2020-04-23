@@ -3,12 +3,10 @@
 ProjectDir=/home/jabaraho/coding/ECE542FinalProject
 HomeDir=/home/jabaraho
 
-if [ "$EUID" -ne 0 ]
-  then echo "Please run as root"
-  exit
-fi
-
+read -s -p "Enter password" sudoPW
 trap ' [ "$(ls -A $ProjectDir/data)" ] && umount $ProjectDir/data ; exit 1 ' SIGTERM SIGKILL SIGINT
+
+echo $sudoPW |sudo apt update
 
 cd $ProjectDir
 
@@ -26,7 +24,7 @@ do
             echo "Data Already Loaded"
         else
             echo "Generate Ramdisk for data"
-            mount -t tmpfs -o size=13G tmpfs $ProjectDir/data
+            echo $sudoPW | sudo mount -t tmpfs -o size=13G tmpfs $ProjectDir/data
             
             unzip $HomeDir/Downloads/leftImg8bit_trainvaltest.zip -d $ProjectDir/data || exit 1
             mv -f $ProjectDir/data/leftImg8bit_trainvaltest/* $ProjectDir/data || exit 1
@@ -39,9 +37,9 @@ do
 
         if [ "$(ls -A $ProjectDir/logs)" ]
         then
-            python ./training.py --train_from_checkpoint || { echo "Checkpoint Training Failed... Releasing Ramfs" ; umount $ProjectDir/data ; exit 1 ; }
+            python ./training.py --train_from_checkpoint || { echo "Checkpoint Training Failed... Releasing Ramfs" ; echo $sudoPW | sudo umount $ProjectDir/data ; exit 1 ; }
         else
-            python ./training.py --train_model || { echo "Initial Training Failed... Releasing Ramfs" ; umount $ProjectDir/data ;  exit 1 ; }
+            python ./training.py --train_model || { echo "Initial Training Failed... Releasing Ramfs" ; echo $sudoPW | sudo umount $ProjectDir/data ;  exit 1 ; }
         fi
     fi
 done
@@ -49,4 +47,4 @@ done
 if [ "$(ls -A $ProjectDir/data)" ]
 then 
     echo "Releasing Ramfs"
-    umount $ProjectDir/data
+    echo $sudoPW | sudo umount $ProjectDir/data
