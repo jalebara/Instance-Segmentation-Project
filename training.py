@@ -265,6 +265,10 @@ def main():
     elif(args.train_from_checkpoint):
         fps = []
         # Pick last directory
+        dir_names = next(os.walk(MODEL_DIR))[1]
+        key = config.NAME.lower()
+        dir_names = filter(lambda f: f.startswith(key), dir_names)
+        dir_names = sorted(dir_names)
         for d in dir_names: 
             dir_name = os.path.join(MODEL_DIR, d)
             # Find the last checkpoint
