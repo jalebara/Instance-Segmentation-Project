@@ -160,31 +160,9 @@ def train_model(model_path=None):
     # Retrieve history for plotting loss and accuracy per epoch
     history = model.keras_model.history.history
 
-    # Accuracy plot config
-    plt.subplot(1, 2, 1)
-    plt.plot(history.history['categorical_accuracy'])
-    plt.plot(history.history['val_categorical_accuracy'])
-    plt.title('Training and Validation Accuracy vs. Epoch')
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.legend(('Training', 'Validation'))
-    plt.grid()
-
-    # Loss plot config
-    plt.subplot(1, 2, 2)
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('Training and Validation Loss vs. Epoch')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend(('Training', 'Validation'))
-    plt.grid()
-
-    # Display plot
-    plt.show()
     ## Save Model History
     with open(os.path.join(MODEL_DIR, '{}-training_history'.format(datetime.now().strftime('%Y-%m-%d-%H-%M'))), 'wb') as file_pi:
-        pickle.dump(history.history, file_pi)
+        pickle.dump(history, file_pi)
 
 """# Model Evaluation
 
