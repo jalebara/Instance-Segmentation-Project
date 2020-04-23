@@ -8,6 +8,7 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
+trap {  [ "$(ls -A $ProjectDir/data)" ] && umount $ProjectDir/data ; echo "Program Terminated" } SIGTERM SIGKILL SIGINT
 
 cd $ProjectDir
 
@@ -35,7 +36,7 @@ do
             rsync --remove-source-file -a $ProjectDir/data/gtFine || exit 1
             rm -rf $ProjectDir/data/gtFine || exit 1
         fi
-        
+
         if [ "$(ls -A $ProjectDir/logs)" ]
         then
             python ./training.py --train_from_checkpoint || { echo "Checkpoint Training Failed... Releasing Ramfs" ; umount $ProjectDir/data ; exit 1 ; }
