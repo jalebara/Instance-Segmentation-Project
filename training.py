@@ -90,7 +90,7 @@ config = TrainingConfig()
 config.display()
 
 def train_model(model_path=None):
-    if model_path = None:
+    if model_path == None:
         model_path = COCO_MODEL_PATH
 
     """# Model Setup
