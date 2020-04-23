@@ -93,9 +93,6 @@ def video_loop(vc, model, display_video, record):
         if display_video:
             cv2.imshow('instances_demo', np.float32(masked_matrix))
             cv2.imshow('video_demo', frame)
-        key = cv2.waitKey(10)
-        if key =='q':
-            break
 
 def parse_args():
     parser = argparse.ArgumentParser()
