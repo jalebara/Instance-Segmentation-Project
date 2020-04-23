@@ -8,7 +8,7 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-trap "[ "$(ls -A $ProjectDir/data)" ] && umount $ProjectDir/data ; exit 1" SIGTERM SIGKILL SIGINT
+trap ' [ "$(ls -A $ProjectDir/data)" ] && umount $ProjectDir/data ; exit 1 ' SIGTERM SIGKILL SIGINT
 
 cd $ProjectDir
 
