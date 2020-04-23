@@ -20,7 +20,6 @@ NAME = 'cityscape'
 NUM_CLASSES = 35 #1+34 # Background (inherited from utils.Dataset) + FG classes (listed below)
 WEIGHT_DECAY = 0.0001
 
-
 class TrainingConfig(Config):
     # TO-OPT: Set batch size to 20 by default.
     GPU_COUNT = GPU_COUNT
@@ -59,13 +58,13 @@ class CityscapesSegmentationDataset(Dataset):
         # image_dir: location for image path assignment
         if subset == 'train':
             self.data_dir = os.path.join(root_directory, 'train')
-            image_dir = os.path.join(IMAGE_DIR, 'train')
+            image_dir = os.path.join(self.data_dir, 'train')
         elif subset == 'val':
             self.data_dir = os.path.join(root_directory, 'val')
-            image_dir = os.path.join(IMAGE_DIR, 'val')
+            image_dir = os.path.join(self.data_dir, 'val')
         elif subset == 'test':
             self.data_dir = os.path.join(root_directory, 'test')
-            image_dir = os.path.join(IMAGE_DIR, 'test')
+            image_dir = os.path.join(self.data_dir, 'test')
         else:
             raise Exception('No valid subset provided')
 
