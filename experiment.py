@@ -11,6 +11,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from datetime import datetime
 import pickle
+from types import MethodType
 
 from PIL import Image
 # Submodule Libraries
@@ -93,7 +94,7 @@ class Experiment():
         self.testing_config = TestingConfig()
         self.history = None
         if training_func is not None:
-            self.training_func = training_func
+            self.training_func = MethodType(training_func, self)
     
     def _get_latest_checkpoint(self):
         dir_names = next(os.walk(self.model_save_dir))[1]
@@ -190,7 +191,7 @@ class Experiment():
             plt.xlabel('Epoch')
             plt.ylabel('Loss')
             plt.legend(('Training', 'Validation'))
-            plt.savefig("{}-experiment-loss-curve.png".format(self.name))
+            plt.savefig(os.path.join(self.results_path, "{}-experiment-loss-curve.png".format(self.name)))
         
         model_checkpoint_path = self._get_latest_checkpoint()
 
@@ -232,14 +233,14 @@ class Experiment():
             f.write("Epochs: {} \n".format(self.epochs))
             f.write("Layers: {} \n".format(str(self.layers)))
             if self.augmentation is not None:
-                f.write("Augmentation: {}\n".format(self.augmentation))
+                f.write("Augmentation: See Experiment file")
             else:
                 f.write("Augmentation: None\n")
             f.write("Max Image Size: {}\n".format(self.experiment_config.IMAGE_MAX_DIM))
             f.write("Min Image Size: {}\n".format(self.experiment_config.IMAGE_MIN_DIM))
             f.write("Images per GPU: {}\n".format(self.experiment_config.IMAGES_PER_GPU))
             f.write("RESULTS\n")
-            f.write("Mean AP: {}".format(mAP))
+            f.write("Mean AP: {}\n".format(mAP))
     
     def training_func(self, model, dataset_train, dataset_val):
         model.train(dataset_train, 
