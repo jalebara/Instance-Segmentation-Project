@@ -140,7 +140,7 @@ class Experiment():
         print('Running Training')
         # check if experiment has completed
         if self.model_path != COCO_MODEL_PATH:
-            epoch_num = 1 + int(self.model_path[-7:-4])
+            epoch_num = 1 + int(self.model_path[-7:-3])
             print('checkpoint epoch is {}'.format(self.model_path[-7:-4]))
             if epoch_num == self.epochs:
                 print('Training completed')
