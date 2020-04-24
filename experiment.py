@@ -311,7 +311,7 @@ if __name__ == "__main__":
         "root_data_directory": '/home/jabaraho/coding/ECE542FinalProject/data'
     }
 
-    experiment_configs = [experiment1_config, experiment2_config, experiment3_config, experiment4_config]
+    experiment_configs = [experiment2_config, experiment3_config, experiment4_config, experiment5_config]
 
     for ex_conf in experiment_configs:
         experiment = Experiment(**ex_conf)
