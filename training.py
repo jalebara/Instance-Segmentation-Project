@@ -303,6 +303,8 @@ def main():
         model_path = sorted(fps)[-1]
         print('Found model {}'.format(model_path))
         train_model(model_path=model_path)
+    elif(args.evaluate_model):
+        evaluate(args.model_path)
     else:
         print('no valid args provided')
 if __name__ == "__main__":
