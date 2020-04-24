@@ -91,7 +91,7 @@ class Experiment():
         self.model_path = COCO_MODEL_PATH
         self.model_save_dir = os.path.join(self.results_path, 'logs')
         self.testing_config = TestingConfig()
-
+        self.history = None
         if training_func is not None:
             self.training_func = training_func
     
