@@ -104,11 +104,7 @@ class Experiment():
         print(dir_names)
 
         if not dir_names:
-            import errno
-            raise FileNotFoundError(
-                errno.ENOENT,
-                "Could not find model directory under {}".format(self.model_save_dir))
-            
+            return COCO_MODEL_PATH # no weights trained
         fps = []
         # Pick last directory
         for d in dir_names: 
@@ -235,7 +231,7 @@ class Experiment():
             f.write("Epochs: {} \n".format(self.epochs))
             f.write("Layers: {} \n".format(str(self.layers)))
             if self.augmentation is not None:
-                f.write("Augmentation: See Experiment file")
+                f.write("Augmentation: See Experiment file\n")
             else:
                 f.write("Augmentation: None\n")
             f.write("Max Image Size: {}\n".format(self.experiment_config.IMAGE_MAX_DIM))
@@ -313,7 +309,7 @@ if __name__ == "__main__":
         "root_data_directory": '/home/jabaraho/coding/ECE542FinalProject/data'
     }
 
-    experiment_configs = [experiment2_config, experiment3_config, experiment4_config]
+    experiment_configs = [experiment3_config, experiment4_config]
 
     for ex_conf in experiment_configs:
         experiment = Experiment(**ex_conf)
