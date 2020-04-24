@@ -96,7 +96,7 @@ class Experiment():
             self.training_func = training_func
     
     def _get_latest_checkpoint(self):
-        dir_names = next(os.walk(self.results_path))[1]
+        dir_names = next(os.walk(self.model_save_dir))[1]
         key = self.experiment_config.NAME.lower()
         dir_names = filter(lambda f: f.startswith(key), dir_names)
         dir_names = sorted(dir_names)
