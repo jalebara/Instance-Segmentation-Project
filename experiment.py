@@ -113,7 +113,7 @@ class Experiment():
             dir_name = os.path.join(self.model_save_dir, d)
             # Find the last checkpoint
             checkpoints = next(os.walk(dir_name))[2]
-            checkpoints = filter(lambda f: f.startswith(self.name), checkpoints)
+            checkpoints = filter(lambda f: f.endswith('.h5'), checkpoints)
             checkpoints = sorted(checkpoints)
             if not checkpoints:
                 print('No weight files in {}'.format(dir_name))
