@@ -76,7 +76,7 @@ class Experiment():
             # TO-OPT: Set batch size to 20 by default.
             GPU_COUNT = 1
             IMAGES_PER_GPU = 1
-            NAME = 'cityscape-testing'
+            NAME = 'cityscape'
             NUM_CLASSES = 35
             IMAGE_MIN_DIM = image_size_min
             IMAGE_MAX_DIM = image_size_max
