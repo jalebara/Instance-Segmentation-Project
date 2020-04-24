@@ -137,10 +137,13 @@ class Experiment():
             os.makedirs(self.model_save_dir)
     
     def run(self):
+        print('Running Training')
         # check if experiment has completed
         if self.model_path != COCO_MODEL_PATH:
             epoch_num = 1 + int(self.model_path[-7:-4])
+            print('checkpoint epoch is {}'.format(self.model_path[-7:-4]))
             if epoch_num == self.epochs:
+                print('Training completed')
                 return
 
         # Create model object in training mode.
@@ -173,6 +176,7 @@ class Experiment():
         self.history = model.keras_model.history.history
 
     def save_results(self):
+        print("Computing and saving results")
         if self.history is not None:
             with open(os.path.join(self.results_path, '{}-training_history'.format(datetime.now().strftime('%Y-%m-%d-%H-%M'))), 'wb') as file_pi:
                 pickle.dump(self.history, file_pi)
