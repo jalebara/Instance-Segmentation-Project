@@ -115,12 +115,13 @@ class Experiment():
             checkpoints = list(reversed(sorted(checkpoints)))
             if not checkpoints:
                 print('No weight files in {}'.format(dir_name))
-                #if no weight files, then experiment has not started
-                return COCO_MODEL_PATH
             else:
                 checkpoint = os.path.join(dir_name, checkpoints[0])
                 fps.append(checkpoint)
-
+        if fps is None:
+            #empty list
+            return COCO_MODEL_PATH
+            
         model_path = sorted(fps)[0]
         print('Found models {}'.format(str(fps)))
         return model_path
@@ -243,11 +244,16 @@ class Experiment():
     def training_func(self, model, dataset_train, dataset_val):
         model.train(dataset_train, 
             dataset_val,
-            learning_rate=self.experiment_config.LEARNING_RATE,
-            epochs=self.epochs,
-            layers=self.layers,
+            learning_rate=0.005,
+            epochs=20,
+            layers='heads',
             augmentation=self.augmentation)
-        
+        model.train(dataset_train, 
+            dataset_val,
+            learning_rate=0.001,
+            epochs=25,
+            layers='4+',
+            augmentation=self.augmentation)
         return model
 
 if __name__ == "__main__":
@@ -309,7 +315,23 @@ if __name__ == "__main__":
         "root_data_directory": '/home/jabaraho/coding/ECE542FinalProject/data'
     }
 
-    experiment_configs = [experiment3_config, experiment4_config]
+    experiment5_config = {
+        "name": 'low-lr-augment', 
+        "results_path": '/home/jabaraho/coding/ECE542FinalProject/logs/experiment2',
+        "image_size_min": 512,
+        "image_size_max": 512,
+        "images_per_gpu": 2, 
+        "learning_rate": 0.001,
+        "epochs": 2,
+        "layers_to_train": '4+',
+        "augmentation": imgaug.augmenters.Sometimes(0.5, [
+                            imgaug.augmenters.Fliplr(0.5),
+                            imgaug.augmenters.GaussianBlur(sigma=(0.0, 5.0))
+                        ]),
+        "root_data_directory": '/home/jabaraho/coding/ECE542FinalProject/data'
+    }
+
+    experiment_configs = [experiment5_config]
 
     for ex_conf in experiment_configs:
         experiment = Experiment(**ex_conf)
