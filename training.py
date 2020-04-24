@@ -228,11 +228,50 @@ def display_predictions():
         visualize.display_instances(images[i], results[i]['rois'], results[i]['masks'], results[i]['class_ids'], 
                                 class_names, results[i]['scores'])
 
+def evaluate(model_path):
+
+    eval_config = EvaluationConfig()
+
+    # Recreate the model in inference mode
+    model = modellib.MaskRCNN(mode='inference', 
+                            config=eval_config,
+                            model_dir=MASK_ROOT)
+    print(data_dir)
+    model.load_weights(model_path, by_name=True)
+
+    #Testing dataset.
+    dataset_test = CityscapesSegmentationDataset()
+    dataset_test.load_cityscapes(data_dir, 'test')
+    dataset_test.prepare()
+
+    # Compute VOC-Style mAP @ IoU=0.5
+    # Running on 10 images. Increase for better accuracy.
+    #image_ids = np.random.choice(dataset_test.image_ids, 20)
+    APs = []
+    for image_id in dataset_test.image_ids:
+        # Load image and ground truth data
+        image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+            modellib.load_image_gt(dataset_test, eval_config,
+                                image_id, use_mini_mask=False)
+        molded_images = np.expand_dims(modellib.mold_image(image, eval_config), 0)
+        # Run object detection
+        results = model.detect([image], verbose=0)
+        r = results[0]
+        # Compute AP
+        AP, precisions, recalls, overlaps =\
+            utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
+                            r["rois"], r["class_ids"], r["scores"], r['masks'])
+        APs.append(AP)
+        print(AP)
+        
+    print("mAP: ", np.mean(APs))
 def parse_args():
     parser = argparse.ArgumentParser(description='Train and display checkpoint results')
     parser.add_argument('--checkpoint_detection', action='store_true')
     parser.add_argument('--train_model', action='store_true')
     parser.add_argument('--train_from_checkpoint', action='store_true')
+    parser.add_argument('--evaluate_model', action='store_true')
+    parser.add_argument('--model_path', action='store')
     return parser.parse_args()
 
 def main():

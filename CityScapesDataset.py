@@ -34,6 +34,17 @@ class TrainingConfig(Config):
 config = TrainingConfig()
 config.display()
 
+class EvaluationConfig(Config):
+    # TO-OPT: Set batch size to 20 by default.
+    GPU_COUNT = 1
+    IMAGES_PER_GPU = 1
+    LEARNING_RATE = LEARNING_RATE
+    NAME = NAME
+    NUM_CLASSES = NUM_CLASSES
+    WEIGHT_DECAY = WEIGHT_DECAY
+    IMAGE_MIN_DIM = 256
+    IMAGE_MAX_DIM = 256
+
 class_names = ['ego vehicle', 'rectification border', 'out of roi', 'static', 'dynamic', 'ground', 'road', 'sidewalk', 'parking', 'rail track', 'building', 'wall', 'fence',
                'guard rail', 'bridge', 'tunnel', 'pole', 'polegroup', 'traffic light', 'traffic sign', 'vegetation', 'terrain', 'sky', 'person', 'rider', 'car', 'truck', 'bus', 'caravan',
                'trailer', 'train', 'motorcycle', 'bicycle', 'license plate']
