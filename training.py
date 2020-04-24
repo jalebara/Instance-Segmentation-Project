@@ -58,7 +58,7 @@ from mrcnn import utils
 import mrcnn.model as modellib
 from mrcnn import visualize
 import coco
-from CityScapesDataset import CityscapesSegmentationDataset, TrainingConfig
+from CityScapesDataset import CityscapesSegmentationDataset, TrainingConfig, EvaluationConfig
 
 #Global Constants
 
