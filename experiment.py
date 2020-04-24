@@ -123,8 +123,8 @@ class Experiment():
                 checkpoint = os.path.join(dir_name, checkpoints[0])
                 fps.append(checkpoint)
 
-        model_path = sorted(fps)[1]
-        print('Found model {}'.format(model_path))
+        model_path = sorted(fps)[0]
+        print('Found models {}'.format(str(fps)))
         return model_path
     
     def prepare(self):
