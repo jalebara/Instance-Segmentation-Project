@@ -100,6 +100,7 @@ class Experiment():
         key = self.experiment_config.NAME.lower()
         dir_names = filter(lambda f: f.startswith(key), dir_names)
         dir_names = sorted(dir_names)
+        print(dir_names)
 
         if not dir_names:
             import errno
@@ -114,7 +115,7 @@ class Experiment():
             # Find the last checkpoint
             checkpoints = next(os.walk(dir_name))[2]
             checkpoints = filter(lambda f: f.endswith('.h5'), checkpoints)
-            checkpoints = sorted(checkpoints)
+            checkpoints = list(reversed(sorted(checkpoints)))
             if not checkpoints:
                 print('No weight files in {}'.format(dir_name))
                 #if no weight files, then experiment has not started
