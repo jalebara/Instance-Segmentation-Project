@@ -61,7 +61,8 @@ class Experiment():
                 epochs,
                 layers_to_train,
                 augmentation,
-                root_data_directory):
+                root_data_directory,
+                training_func = None):
 
         class ExperimentConfig(Config):
             GPU_COUNT = 1
@@ -71,6 +72,14 @@ class Experiment():
             IMAGE_MIN_DIM = image_size_min
             IMAGE_MAX_DIM = image_size_max
             NAME = 'cityscape'
+        class TestingConfig(Config):
+            # TO-OPT: Set batch size to 20 by default.
+            GPU_COUNT = 1
+            IMAGES_PER_GPU = 1
+            NAME = self.name + '-testing'
+            NUM_CLASSES = 35
+            IMAGE_MIN_DIM = image_size_min
+            IMAGE_MAX_DIM = image_size_max
 
         self.experiment_config = ExperimentConfig()
         self.results_path = results_path
@@ -81,40 +90,46 @@ class Experiment():
         self.data_dir = root_data_directory
         self.model_path = COCO_MODEL_PATH
         self.model_save_dir = os.path.join(self.results_path, 'logs')
+        self.testing_config = TestingConfig()
 
+        if training_func is not None:
+            self.training_func = training_func
+    
+    def _get_latest_checkpoint(self):
+        dir_names = next(os.walk(self.results_path))[1]
+        key = self.experiment_config.NAME.lower()
+        dir_names = filter(lambda f: f.startswith(key), dir_names)
+        dir_names = sorted(dir_names)
+
+        if not dir_names:
+            import errno
+            raise FileNotFoundError(
+                errno.ENOENT,
+                "Could not find model directory under {}".format(self.model_save_dir))
+            
+        fps = []
+        # Pick last directory
+        for d in dir_names: 
+            dir_name = os.path.join(self.model_save_dir, d)
+            # Find the last checkpoint
+            checkpoints = next(os.walk(dir_name))[2]
+            checkpoints = filter(lambda f: f.startswith(self.name), checkpoints)
+            checkpoints = sorted(checkpoints)
+            if not checkpoints:
+                print('No weight files in {}'.format(dir_name))
+                #if no weight files, then experiment has not started
+                return COCO_MODEL_PATH
+            else:
+                checkpoint = os.path.join(dir_name, checkpoints[0])
+                fps.append(checkpoint)
+
+        model_path = sorted(fps)[-1]
+        print('Found model {}'.format(model_path))
+        return model_path
+    
     def prepare(self):
         if os.path.isdir(self.results_path):
-            #directory exists then experiment is underway and we can continue
-            # select latest checkpoint
-            dir_names = next(os.walk(self.results_path))[1]
-            key = self.experiment_config.NAME.lower()
-            dir_names = filter(lambda f: f.startswith(key), dir_names)
-            dir_names = sorted(dir_names)
-
-            if not dir_names:
-                import errno
-                raise FileNotFoundError(
-                    errno.ENOENT,
-                    "Could not find model directory under {}".format(self.model_save_dir))
-                
-            fps = []
-            # Pick last directory
-            for d in dir_names: 
-                dir_name = os.path.join(self.model_save_dir, d)
-                # Find the last checkpoint
-                checkpoints = next(os.walk(dir_name))[2]
-                checkpoints = filter(lambda f: f.startswith(self.name), checkpoints)
-                checkpoints = sorted(checkpoints)
-                if not checkpoints:
-                    print('No weight files in {}'.format(dir_name))
-                    #if no weight files, then experiment has not started
-                else:
-                    checkpoint = os.path.join(dir_name, checkpoints[0])
-                    fps.append(checkpoint)
-
-            model_path = sorted(fps)[-1]
-            print('Found model {}'.format(model_path))
-            self.model_path = model_path # replace default MS COCO weights with latest weights
+            self.model_path = self._get_latest_checkpoint() # replace default MS COCO weights with latest weights
         
         else:
             #Experiment has not started, so we should make the directories
@@ -152,13 +167,7 @@ class Experiment():
         dataset_val.load_cityscapes(self.data_dir, 'val')
         dataset_val.prepare()
 
-        model.train(dataset_train, 
-                    dataset_val,
-                    learning_rate=self.experiment_config.LEARNING_RATE,
-                    epochs=self.epochs,
-                    layers=self.layers,
-                    augmentation=self.augmentation)
-
+        model = self.training_func(model, dataset_train, dataset_val)
 
         # Retrieve history for plotting loss and accuracy per epoch
         self.history = model.keras_model.history.history
@@ -177,7 +186,43 @@ class Experiment():
             plt.ylabel('Loss')
             plt.legend(('Training', 'Validation'))
             plt.savefig("{}-experiment-loss-curve.png".format(self.name))
-        with open(os.path.join(self.results_path, "{0}-experiment-config-{1}.txt".format(self.name, datetime.now().strftime('%Y-%m-%d-%H-%M')))) as f:
+        
+        model_checkpoint_path = self._get_latest_checkpoint()
+
+        # Recreate the model in inference mode
+        model = modellib.MaskRCNN(mode='inference', 
+                                config=self.testing_config,
+                                model_dir=MASK_ROOT)
+        model.load_weights(model_checkpoint_path, by_name=True)
+
+        #Testing dataset.
+        dataset_test = CityscapesSegmentationDataset()
+        dataset_test.load_cityscapes(self.data_dir, 'test')
+        dataset_test.prepare()
+
+        # Compute VOC-Style mAP @ IoU=0.5
+        # Running on 10 images. Increase for better accuracy.
+        #image_ids = np.random.choice(dataset_test.image_ids, 20)
+        APs = []
+        for image_id in dataset_test.image_ids:
+            # Load image and ground truth data
+            image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+                modellib.load_image_gt(dataset_test, self.testing_config,
+                                    image_id, use_mini_mask=False)
+            molded_images = np.expand_dims(modellib.mold_image(image, self.testing_config), 0)
+            # Run object detection
+            results = model.detect([image], verbose=0)
+            r = results[0]
+            # Compute AP
+            AP, precisions, recalls, overlaps =\
+                utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
+                                r["rois"], r["class_ids"], r["scores"], r['masks'])
+            APs.append(AP)
+        mAP = np.mean(APs)        
+        print("mAP: {}".format(mAP))
+        
+        
+        with open(os.path.join(self.results_path, "{0}-experiment-config-{1}.txt".format(self.name, datetime.now().strftime('%Y-%m-%d-%H-%M'))),'w') as f:
             f.write("Learning Rate: {} \n".format(self.experiment_config.LEARNING_RATE))
             f.write("Epochs: {} \n".format(self.epochs))
             f.write("Layers: {} \n".format(str(self.layers)))
@@ -188,6 +233,18 @@ class Experiment():
             f.write("Max Image Size: {}\n".format(self.experiment_config.IMAGE_MAX_DIM))
             f.write("Min Image Size: {}\n".format(self.experiment_config.IMAGE_MIN_DIM))
             f.write("Images per GPU: {}\n".format(self.experiment_config.IMAGES_PER_GPU))
+            f.write("RESULTS\n")
+            f.write("Mean AP: {}".format(mAP))
+    
+    def training_func(self, model, dataset_train, dataset_val):
+        model.train(dataset_train, 
+            dataset_val,
+            learning_rate=self.experiment_config.LEARNING_RATE,
+            epochs=self.epochs,
+            layers=self.layers,
+            augmentation=self.augmentation)
+        
+        return model
 
 if __name__ == "__main__":
     experiment1_config = {
