@@ -178,6 +178,8 @@ class Experiment():
         self.history = model.keras_model.history.history
 
     def save_results(self):
+        if os.path.exists(os.path.join(self.results_path, "{}-experiment-loss-curve.png".format(self.name))):
+            return #already saved results
         print("Computing and saving results")
         if self.history is not None:
             with open(os.path.join(self.results_path, '{}-training_history'.format(datetime.now().strftime('%Y-%m-%d-%H-%M'))), 'wb') as file_pi:
@@ -311,7 +313,7 @@ if __name__ == "__main__":
         "root_data_directory": '/home/jabaraho/coding/ECE542FinalProject/data'
     }
 
-    experiment_configs = [experiment2_config, experiment3_config, experiment4_config, experiment5_config]
+    experiment_configs = [experiment2_config, experiment3_config, experiment4_config]
 
     for ex_conf in experiment_configs:
         experiment = Experiment(**ex_conf)
