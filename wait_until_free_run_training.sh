@@ -35,13 +35,7 @@ do
             rsync --remove-source-files --update -a $ProjectDir/data/gtFine/*  $ProjectDir/data/ || exit 1
             rm -rf $ProjectDir/data/gtFine || exit 1
         fi
-
-        if [ "$(ls -A $ProjectDir/logs)" ]
-        then
-            python ./training.py --train_from_checkpoint || { echo "Checkpoint Training Failed... Releasing Ramfs" ; echo $sudoPW | sudo -S umount $ProjectDir/data ; exit 1 ; }
-        else
-            python ./training.py --train_model || { echo "Initial Training Failed... Releasing Ramfs" ; echo $sudoPW | sudo -S umount $ProjectDir/data ;  exit 1 ; }
-        fi
+        python ./experiment.py
     fi
 done
 
