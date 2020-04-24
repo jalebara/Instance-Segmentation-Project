@@ -288,7 +288,7 @@ if __name__ == "__main__":
         "images_per_gpu": 2, 
         "learning_rate": 0.001,
         "epochs": 2,
-        "layers_to_train": 'heads',
+        "layers_to_train": '4+',
         "augmentation": None,
         "root_data_directory": '/home/jabaraho/coding/ECE542FinalProject/data'
     }
@@ -301,7 +301,7 @@ if __name__ == "__main__":
         "images_per_gpu": 2, 
         "learning_rate": 0.001,
         "epochs": 2,
-        "layers_to_train": 'heads',
+        "layers_to_train": '4+',
         "augmentation": imgaug.augmenters.Sometimes(0.5, [
                             imgaug.augmenters.Fliplr(0.5),
                             imgaug.augmenters.GaussianBlur(sigma=(0.0, 5.0))
