@@ -10,7 +10,7 @@ echo $sudoPW |sudo -S apt update
 
 cd $ProjectDir
 
-for i in {1..8}
+for i in {1..12}
 do
     if pgrep -x python >/dev/null
     then
@@ -35,7 +35,8 @@ do
             rsync --remove-source-files --update -a $ProjectDir/data/gtFine/*  $ProjectDir/data/ || exit 1
             rm -rf $ProjectDir/data/gtFine || exit 1
         fi
-        python ./experiment.py
+        python ./experiment.py || exit 1
+        break
     fi
 done
 
