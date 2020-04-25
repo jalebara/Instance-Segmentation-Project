@@ -118,10 +118,10 @@ class Experiment():
             else:
                 checkpoint = os.path.join(dir_name, checkpoints[0])
                 fps.append(checkpoint)
-        if fps is None:
+        if fps == []:
             #empty list
             return COCO_MODEL_PATH
-            
+
         model_path = sorted(fps)[0]
         print('Found models {}'.format(str(fps)))
         return model_path
@@ -244,16 +244,11 @@ class Experiment():
     def training_func(self, model, dataset_train, dataset_val):
         model.train(dataset_train, 
             dataset_val,
-            learning_rate=0.005,
-            epochs=20,
-            layers='heads',
+            learning_rate=self.experiment_config.LEARNING_RATE,
+            epochs=self.epochs,
+            layers=self.layers,
             augmentation=self.augmentation)
-        model.train(dataset_train, 
-            dataset_val,
-            learning_rate=0.001,
-            epochs=25,
-            layers='4+',
-            augmentation=self.augmentation)
+
         return model
 
 if __name__ == "__main__":
@@ -321,9 +316,9 @@ if __name__ == "__main__":
         "image_size_min": 512,
         "image_size_max": 512,
         "images_per_gpu": 2, 
-        "learning_rate": 0.001,
-        "epochs": 2,
-        "layers_to_train": '4+',
+        "learning_rate": 0.005,
+        "epochs": 20,
+        "layers_to_train": 'heads',
         "augmentation": imgaug.augmenters.Sometimes(0.5, [
                             imgaug.augmenters.Fliplr(0.5),
                             imgaug.augmenters.GaussianBlur(sigma=(0.0, 5.0))
