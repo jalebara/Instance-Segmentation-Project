@@ -20,7 +20,6 @@ NAME = 'cityscape'
 NUM_CLASSES = 35 #1+34 # Background (inherited from utils.Dataset) + FG classes (listed below)
 WEIGHT_DECAY = 0.0001
 
-
 class TrainingConfig(Config):
     # TO-OPT: Set batch size to 20 by default.
     GPU_COUNT = GPU_COUNT
@@ -29,11 +28,22 @@ class TrainingConfig(Config):
     NAME = NAME
     NUM_CLASSES = NUM_CLASSES
     WEIGHT_DECAY = WEIGHT_DECAY
-    IMAGE_MIN_DIM = 256
-    IMAGE_MAX_DIM = 256
+    IMAGE_MIN_DIM = 512
+    IMAGE_MAX_DIM = 512
 
 config = TrainingConfig()
 config.display()
+
+class EvaluationConfig(Config):
+    # TO-OPT: Set batch size to 20 by default.
+    GPU_COUNT = 1
+    IMAGES_PER_GPU = 1
+    LEARNING_RATE = LEARNING_RATE
+    NAME = NAME
+    NUM_CLASSES = NUM_CLASSES
+    WEIGHT_DECAY = WEIGHT_DECAY
+    IMAGE_MIN_DIM = 256
+    IMAGE_MAX_DIM = 256
 
 class_names = ['ego vehicle', 'rectification border', 'out of roi', 'static', 'dynamic', 'ground', 'road', 'sidewalk', 'parking', 'rail track', 'building', 'wall', 'fence',
                'guard rail', 'bridge', 'tunnel', 'pole', 'polegroup', 'traffic light', 'traffic sign', 'vegetation', 'terrain', 'sky', 'person', 'rider', 'car', 'truck', 'bus', 'caravan',
@@ -59,13 +69,10 @@ class CityscapesSegmentationDataset(Dataset):
         # image_dir: location for image path assignment
         if subset == 'train':
             self.data_dir = os.path.join(root_directory, 'train')
-            image_dir = os.path.join(IMAGE_DIR, 'train')
         elif subset == 'val':
             self.data_dir = os.path.join(root_directory, 'val')
-            image_dir = os.path.join(IMAGE_DIR, 'val')
         elif subset == 'test':
             self.data_dir = os.path.join(root_directory, 'test')
-            image_dir = os.path.join(IMAGE_DIR, 'test')
         else:
             raise Exception('No valid subset provided')
 
@@ -79,7 +86,7 @@ class CityscapesSegmentationDataset(Dataset):
         # Add unique image id's to dataset
         for image_id in image_id_set:
           city = image_id.split('_')[0] # First element in list should be city
-          path = os.path.join(image_dir, city, image_id + '_leftImg8bit.png')
+          path = os.path.join(self.data_dir, city, image_id + '_leftImg8bit.png')
           self.add_image(source = "cityscape", 
           image_id=image_id,
           path=path)

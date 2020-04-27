@@ -4,3 +4,4 @@ aug_data/
 data/
 logs/
 *.h5
+__pycache__/
