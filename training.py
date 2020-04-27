@@ -35,6 +35,8 @@ import argparse
 import skimage.io
 import matplotlib
 import matplotlib.pyplot as plt
+from datetime import datetime
+import pickle
 
 from PIL import Image
 # Submodule Libraries
@@ -56,7 +58,7 @@ from mrcnn import utils
 import mrcnn.model as modellib
 from mrcnn import visualize
 import coco
-from CityScapesDataset import CityscapesSegmentationDataset, TrainingConfig
+from CityScapesDataset import CityscapesSegmentationDataset, TrainingConfig, EvaluationConfig
 
 #Global Constants
 
@@ -90,7 +92,7 @@ config = TrainingConfig()
 config.display()
 
 def train_model(model_path=None):
-    if model_path = None:
+    if model_path == None:
         model_path = COCO_MODEL_PATH
 
     """# Model Setup
@@ -158,31 +160,9 @@ def train_model(model_path=None):
     # Retrieve history for plotting loss and accuracy per epoch
     history = model.keras_model.history.history
 
-    # Accuracy plot config
-    plt.subplot(1, 2, 1)
-    plt.plot(history.history['categorical_accuracy'])
-    plt.plot(history.history['val_categorical_accuracy'])
-    plt.title('Training and Validation Accuracy vs. Epoch')
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.legend(('Training', 'Validation'))
-    plt.grid()
-
-    # Loss plot config
-    plt.subplot(1, 2, 2)
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('Training and Validation Loss vs. Epoch')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend(('Training', 'Validation'))
-    plt.grid()
-
-    # Display plot
-    plt.show()
     ## Save Model History
-    with open(os.path.join(MODEL_DIR, 'training_history'), 'wb') as file_pi:
-        pickle.dump(history.history, file_pi)
+    with open(os.path.join(MODEL_DIR, '{}-training_history'.format(datetime.now().strftime('%Y-%m-%d-%H-%M'))), 'wb') as file_pi:
+        pickle.dump(history, file_pi)
 
 """# Model Evaluation
 
@@ -248,11 +228,50 @@ def display_predictions():
         visualize.display_instances(images[i], results[i]['rois'], results[i]['masks'], results[i]['class_ids'], 
                                 class_names, results[i]['scores'])
 
+def evaluate(model_path):
+
+    eval_config = EvaluationConfig()
+
+    # Recreate the model in inference mode
+    model = modellib.MaskRCNN(mode='inference', 
+                            config=eval_config,
+                            model_dir=MASK_ROOT)
+    print(data_dir)
+    model.load_weights(model_path, by_name=True)
+
+    #Testing dataset.
+    dataset_test = CityscapesSegmentationDataset()
+    dataset_test.load_cityscapes(data_dir, 'test')
+    dataset_test.prepare()
+
+    # Compute VOC-Style mAP @ IoU=0.5
+    # Running on 10 images. Increase for better accuracy.
+    #image_ids = np.random.choice(dataset_test.image_ids, 20)
+    APs = []
+    for image_id in dataset_test.image_ids:
+        # Load image and ground truth data
+        image, image_meta, gt_class_id, gt_bbox, gt_mask =\
+            modellib.load_image_gt(dataset_test, eval_config,
+                                image_id, use_mini_mask=False)
+        molded_images = np.expand_dims(modellib.mold_image(image, eval_config), 0)
+        # Run object detection
+        results = model.detect([image], verbose=0)
+        r = results[0]
+        # Compute AP
+        AP, precisions, recalls, overlaps =\
+            utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
+                            r["rois"], r["class_ids"], r["scores"], r['masks'])
+        APs.append(AP)
+        print(AP)
+        
+    print("mAP: ", np.mean(APs))
 def parse_args():
     parser = argparse.ArgumentParser(description='Train and display checkpoint results')
     parser.add_argument('--checkpoint_detection', action='store_true')
     parser.add_argument('--train_model', action='store_true')
     parser.add_argument('--train_from_checkpoint', action='store_true')
+    parser.add_argument('--evaluate_model', action='store_true')
+    parser.add_argument('--model_path', action='store')
     return parser.parse_args()
 
 def main():
@@ -265,6 +284,10 @@ def main():
     elif(args.train_from_checkpoint):
         fps = []
         # Pick last directory
+        dir_names = next(os.walk(MODEL_DIR))[1]
+        key = config.NAME.lower()
+        dir_names = filter(lambda f: f.startswith(key), dir_names)
+        dir_names = sorted(dir_names)
         for d in dir_names: 
             dir_name = os.path.join(MODEL_DIR, d)
             # Find the last checkpoint
@@ -280,6 +303,8 @@ def main():
         model_path = sorted(fps)[-1]
         print('Found model {}'.format(model_path))
         train_model(model_path=model_path)
+    elif(args.evaluate_model):
+        evaluate(args.model_path)
     else:
         print('no valid args provided')
 if __name__ == "__main__":
