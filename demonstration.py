@@ -59,10 +59,11 @@ def load_model(model_path):
 
     return model
 
-def save_frame():
+def save_frame(vw, frame):
+
     pass
 
-def draw_instances(image, boxes, masks, classes, colors):
+def draw_instances(image, boxes, masks, classes, scores, colors):
     # Number of instances
     N = boxes.shape[0]
     if not N:
@@ -70,29 +71,49 @@ def draw_instances(image, boxes, masks, classes, colors):
     else:
         assert boxes.shape[0] == masks.shape[-1] == classes.shape[0]
 
-    masked_image = image.astype(np.uint32).copy()
+    masked_image = image #image.astype(np.uint32).copy()
+    
     for i in range(N):
-        color = colors[i]
+        color = colors[classes[i]]
+        if scores[i] < 0.9:
+            continue
         # Mask
         mask = masks[:, :, i]
         masked_image = visualize.apply_mask(masked_image, mask, color)
-
+    
     return masked_image
 
-def video_loop(vc, model, display_video, record):
+def video_loop(vc, vw, model, display_video, record):
     rval = True
-    colors = visualize.random_colors(100)
+    colors = visualize.random_colors(35)
     if display_video:
         cv2.namedWindow('instances_demo', cv2.WINDOW_NORMAL)
-        cv2.namedWindow('video_demo', cv2.WINDOW_NORMAL)
+        #cv2.namedWindow('video_demo', cv2.WINDOW_NORMAL)
+    count = 0
     while rval:
+        
+        if count % 30 != 0:
+            rval, frame = vc.read()
+            if cv2.waitKey(25) & 0xFF == ord('q'):
+	            break
+            count+=1
+            continue
         rval, frame = vc.read()
-        results = model.detect([frame])
-        masked_matrix = draw_instances(frame, results[0]['rois'], results[0]['masks'], results[0]['class_ids'], colors)
-        masked_matrix.astype(np.uint8)
+
+
+        results = model.detect([frame])[0]
+        masked_matrix = draw_instances(frame, results['rois'], results['masks'], results['class_ids'], results['scores'], colors)
+        
+        print(masked_matrix.shape)
         if display_video:
-            cv2.imshow('instances_demo', np.float32(masked_matrix))
-            cv2.imshow('video_demo', frame)
+            cv2.imshow('instances_demo', masked_matrix)
+            #cv2.imshow('video_demo', frame)
+        if record:
+            vw.write(masked_matrix)
+            print('saving frame')
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+	        break
+        count+=1
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -104,9 +125,13 @@ def parse_args():
 def main():
     args = parse_args()
 
-    vc = cv2.VideoCapture(0)
+    vc = cv2.VideoCapture('/home/jeff/Downloads/20200425_181735.mp4')
+    vw = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc(*'XVID'), 2.0, (1920,1080))
     model = load_model(args.path_to_model)
 
-    video_loop(vc, model, args.recordOnly, args.record)
+    video_loop(vc, vw, model, args.recordOnly, args.record)
+
+    vc.release()
+    vw.release()
 if __name__ == "__main__":
     main()
