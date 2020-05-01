@@ -1,3 +1,8 @@
 data/
 aug_data/
 .ipynb_checkpoints/*
+data/
+logs/
+*.h5
+__pycache__/
+*.avi
